@@ -46,7 +46,7 @@ describe('ProductList - integration', () => {
   it('should mount the ProductCart component 10 times', async () => {
     const products = server.createList('product', 10);
 
-    axios.get.mockReturnValue(Promise.resolve({ data: { products } }));
+    axios.get.mockReturnValueOnce(Promise.resolve({ data: { products } }));
 
     const wrapper = mount(ProductList, {
       mocks: {
@@ -59,5 +59,19 @@ describe('ProductList - integration', () => {
     const cards = wrapper.findAllComponents(ProductCard);
 
     expect(cards).toHaveLength(10);
+  });
+
+  it('should display the error message when Promise rejecets', async () => {
+    axios.get.mockReturnValueOnce(Promise.reject(new Error(' ')));
+
+    const wrapper = mount(ProductList, {
+      mocks: {
+        $axios: axios,
+      },
+    });
+
+    await Vue.nextTick();
+
+    expect(wrapper.text()).toContain('Problemas ao carregar a lista');
   });
 });
