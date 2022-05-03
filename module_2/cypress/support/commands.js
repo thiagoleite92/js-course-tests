@@ -5,17 +5,18 @@ Cypress.Commands.add('getByTestId', (selector) => {
 Cypress.Commands.add('addToCart', (mode) => {
   cy.getByTestId('product-card').as('productCards');
 
-  const click = (index) =>
+  const click = (index) => {
     cy.get('@productCards').eq(index).find('button').click({ force: true });
-
-  const addByIndex = () => {
-    click(mode.index);
   };
 
   const addByIndexes = () => {
-    for (const index of mode.indexes) {
+    for (const index of mode) {
       click(index);
     }
+  };
+
+  const addByIndex = () => {
+    click(mode);
   };
 
   const addAll = () => {
@@ -28,15 +29,13 @@ Cypress.Commands.add('addToCart', (mode) => {
     });
   };
 
-  if (mode.index) {
-    addByIndex();
-  } else if (!!mode.indexes && Array.isArray(mode.indexes)) {
+  if (Array.isArray(mode)) {
     addByIndexes();
-  } else if (!!mode.indexes && mode.indexes === 'all') {
+  } else if (typeof mode === 'number') {
+    addByIndex();
+  } else if (typeof mode === 'string' && mode === 'all') {
     addAll();
   } else {
-    throw new Error(
-      'Please provide a valid input for cy.addToCart()\r\nPossible values are Array, number or "all"'
-    );
+    throw new Error('Please provide a valid input for cy.addToCart()');
   }
 });
